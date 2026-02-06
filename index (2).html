@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔱 AY4N VIP LOADER</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        body { background-color: #050505; color: #00ffcc; font-family: 'Courier New', Courier, monospace; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .container { background: #111; border: 2px solid #00ffcc; padding: 25px; border-radius: 15px; box-shadow: 0 0 20px #00ffcc; width: 90%; max-width: 400px; text-align: center; }
+        h2 { text-shadow: 2px 2px #ff0055; font-size: 20px; }
+        label { display: block; text-align: left; margin: 10px 0 5px; font-size: 14px; color: #fff; }
+        input { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 5px; border: 1px solid #00ffcc; background: #222; color: white; box-sizing: border-box; }
+        .btn-start { width: 100%; background: #00ffcc; color: black; border: none; padding: 15px; font-weight: bold; cursor: pointer; border-radius: 5px; margin-top: 10px; font-size: 16px; }
+        .btn-stop { width: 100%; background: #ff0055; color: white; border: none; padding: 15px; font-weight: bold; cursor: pointer; border-radius: 5px; margin-top: 10px; font-size: 16px; }
+        #statusBox { background: black; border: 1px solid #444; height: 180px; overflow-y: auto; margin-top: 20px; padding: 10px; font-size: 12px; text-align: left; border-radius: 5px; white-space: pre-wrap; }
+        .success { color: #00ff00; }
+        .error { color: #ff3333; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>🔱 FUCK3R BOII AY4N</h2>
+        <form id="loaderForm">
+            <label>Paste Full Cookie:</label>
+            <input type="text" name="cookie" placeholder="c_user=...; xs=..." required>
+            
+            <label>Select Message File (.txt):</label>
+            <input type="file" name="messages" accept=".txt" required>
+            
+            <label>Convo ID:</label>
+            <input type="text" name="convo" placeholder="Enter Target ID" required>
+            
+            <label>Prefix:</label>
+            <input type="text" name="prefix" placeholder="e.g. Chek" required>
+            
+            <label>Delay (Seconds):</label>
+            <input type="number" name="speed" value="90" min="10" required>
+            
+            <button type="submit" class="btn-start">🚀 Start Loader</button>
+            <button type="button" id="stopBtn" class="btn-stop">🛑 Stop Loader</button>
+        </form>
+        <div id="statusBox">System Ready...</div>
+    </div>
+
+    <script>
+        const socket = io();
+        const form = document.getElementById('loaderForm');
+        const stopBtn = document.getElementById('stopBtn');
+        const statusBox = document.getElementById('statusBox');
+
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            statusBox.innerHTML += `<p>⏳ Connection Request Sent...</p>`;
+            const res = await fetch('/start', { method: 'POST', body: formData });
+            const data = await res.json();
+            if(data.ok) statusBox.innerHTML += `<p class="success">✨ Server Accepted Bot!</p>`;
+        };
+
+        stopBtn.onclick = () => {
+            const convo = document.querySelector('input[name="convo"]').value;
+            socket.emit('stop', { convo });
+            statusBox.innerHTML += `<p class="error">🛑 Stop Signal Sent for: ${convo}</p>`;
+        };
+
+        socket.on('status', (data) => {
+            const p = document.createElement('p');
+            p.innerText = data.text;
+            if(data.text.includes('✅')) p.className = 'success';
+            statusBox.appendChild(p);
+            statusBox.scrollTop = statusBox.scrollHeight;
+        });
+    </script>
+</body>
+</html>
